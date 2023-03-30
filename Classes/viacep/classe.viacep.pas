@@ -1,0 +1,93 @@
+unit classe.viacep;
+
+interface
+
+uses classe.base;
+
+type
+
+  TClasseViacep = class(TClasseBase)
+  private
+    Flogradouro: string;
+    Fbairro: string;
+    Fuf: string;
+    Fcep: string;
+    Flocalidade: string;
+    Fcomplemento: string;
+
+    procedure Setbairro(const Value: string);
+    procedure Setcep(const Value: string);
+    procedure Setcomplemento(const Value: string);
+    procedure Setlocalidade(const Value: string);
+    procedure Setlogradouro(const Value: string);
+    procedure Setuf(const Value: string);
+  public
+    property cep: string read Fcep write Setcep;
+    property logradouro: string read Flogradouro write Setlogradouro;
+    property complemento: string read Fcomplemento write Setcomplemento;
+    property bairro: string read Fbairro write Setbairro;
+    property localidade: string read Flocalidade write Setlocalidade;
+    property uf: string read Fuf write Setuf;
+
+    function ToClasseEndereco(idEndereco : integer): String;
+  end;
+
+implementation
+
+uses
+  classe.endereco, System.SysUtils;
+
+{ TClasseViacep }
+
+procedure TClasseViacep.Setbairro(const Value: string);
+begin
+  Fbairro := Value;
+end;
+
+procedure TClasseViacep.Setcep(const Value: string);
+begin
+  Fcep := Value;
+end;
+
+procedure TClasseViacep.Setcomplemento(const Value: string);
+begin
+  Fcomplemento := Value;
+end;
+
+procedure TClasseViacep.Setlocalidade(const Value: string);
+begin
+  Flocalidade := Value;
+end;
+
+procedure TClasseViacep.Setlogradouro(const Value: string);
+begin
+  Flogradouro := Value;
+end;
+
+procedure TClasseViacep.Setuf(const Value: string);
+begin
+  Fuf := Value;
+end;
+
+function TClasseViacep.ToClasseEndereco(idEndereco : integer): String;
+var
+  endereco : TEndereco;
+begin
+  Result := '';
+  endereco := TEndereco.Create;
+
+  try
+    endereco.id := idEndereco;
+    endereco.uf := Self.uf;
+    endereco.nomeCidade := Self.localidade;
+    endereco.nomeBairro := Self.bairro;
+    endereco.nomeLogradouro := Self.logradouro;
+    endereco.complemento := Self.complemento;
+
+    Result := endereco.ToStandardJson();
+  finally
+    FreeAndNil(endereco);
+  end;
+end;
+
+end.

@@ -1,0 +1,95 @@
+unit classe.pessoa;
+
+interface
+
+uses
+  classe.base;
+
+type
+
+  TListaPessoa = class;
+  TPessoa = class;
+
+  TListaPessoa = class
+  private
+    FlistaPessoas: TArray<TPessoa>;
+
+    procedure SetlistaPessoas(const Value: TArray<TPessoa>);
+  public
+    property listaPessoas : TArray<TPessoa> read FlistaPessoas write SetlistaPessoas;
+
+    procedure AddPessoa(pessoa : TPessoa);
+  end;
+
+  TPessoa = class(TClasseBase)
+  private
+    FdataRegistro: String;
+    Fsobrenome: String;
+    Fnatureza: Integer;
+    Fnome: String;
+    Fendereco: TEndereco;
+    FnumeroDocumento: String;
+
+    procedure SetdataRegistro(const Value: String);
+    procedure Setendereco(const Value: TEndereco);
+    procedure Setnatureza(const Value: Integer);
+    procedure Setnome(const Value: String);
+    procedure SetnumeroDocumento(const Value: String);
+    procedure Setsobrenome(const Value: String);
+  public
+    property natureza : Integer read Fnatureza write Setnatureza;
+    property numeroDocumento : String read FnumeroDocumento write SetnumeroDocumento;
+    property nome : String read Fnome write Setnome;
+    property sobrenome : String read Fsobrenome write Setsobrenome;
+    property dataRegistro : String read FdataRegistro write SetdataRegistro;
+    property endereco : TEndereco read Fendereco write Setendereco;
+  end;
+
+implementation
+
+{ TPessoa }
+
+procedure TPessoa.SetdataRegistro(const Value: String);
+begin
+  FdataRegistro := Value;
+end;
+
+procedure TPessoa.Setendereco(const Value: TEndereco);
+begin
+  Fendereco := Value;
+end;
+
+procedure TPessoa.Setnatureza(const Value: Integer);
+begin
+  Fnatureza := Value;
+end;
+
+procedure TPessoa.Setnome(const Value: String);
+begin
+  Fnome := Value;
+end;
+
+procedure TPessoa.SetnumeroDocumento(const Value: String);
+begin
+  FnumeroDocumento := Value;
+end;
+
+procedure TPessoa.Setsobrenome(const Value: String);
+begin
+  Fsobrenome := Value;
+end;
+
+{ TListaPessoa }
+
+procedure TListaPessoa.AddPessoa(pessoa: TPessoa);
+begin
+  SetLength(FlistaPessoas, Length(FlistaPessoas) + 1);
+  FlistaPessoas[Length(FlistaPessoas) - 1] := pessoa;
+end;
+
+procedure TListaPessoa.SetlistaPessoas(const Value: TArray<TPessoa>);
+begin
+  FlistaPessoas := Value;
+end;
+
+end.

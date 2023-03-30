@@ -1,0 +1,14 @@
+unit servico.Pessoa;
+
+interface
+
+type
+
+  TServicoPessoa = class
+  public
+    class function GravarPessoa
+  end;
+
+implementation
+
+end.

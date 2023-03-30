@@ -1,0 +1,85 @@
+unit Validador.Pessoa;
+
+interface
+
+type
+
+  TValidadorPessoa = class
+  public
+    class function ValidarPessoa(pessoa : String; var erros : String): Boolean;
+  end;
+
+implementation
+
+uses
+  classe.pessoa, System.SysUtils, System.Classes, REST.Json;
+
+{ TValidadorPessoa }
+
+class function TValidadorPessoa.ValidarPessoa(pessoa: String;
+  var erros: String): Boolean;
+var
+  objPessoa : TPessoa;
+  slListaErros : TStringList;
+begin
+  Result := false;
+  objPessoa := TPessoa.Create;
+  slListaErros := TStringList.Create;
+
+  try
+    try
+      slListaErros.Clear;
+
+      try
+        objPessoa := TJson.JsonToObject<TPessoa>(pessoa)
+      except
+        raise Exception.Create('A pessoa informada não contém os dados de acordo com o esperado, verificar as informações!');
+      end;
+
+      {$REGION '. Pessoa .'}
+      if (objPessoa.natureza < 0) or
+         (objPessoa.natureza > 32767) then
+      begin
+        slListaErros.Add('Natureza informada tem um tamanho inválido, deve ser maior que 0 e menor que 32767');
+      end;
+
+      if (objPessoa.numeroDocumento.Trim.IsEmpty()) or
+         (Length(objPessoa.numeroDocumento.Trim)) > 20 then
+      begin
+        slListaErros.Add('Número de documento informado é inválido, não pode estar vazio e deve conter no máximo 20 caracteres.');
+      end;
+
+      if (objPessoa.nome.Trim.IsEmpty()) or
+         (Length(objPessoa.nome.Trim)) > 20 then
+      begin
+        slListaErros.Add('Nome informado é inválido, não pode estar vazio e deve conter no máximo 100 caracteres.');
+      end;
+
+      if (objPessoa.sobrenome.Trim.IsEmpty()) or
+         (Length(objPessoa.sobrenome.Trim)) > 20 then
+      begin
+        slListaErros.Add('Sobrenome informado é inválido, não pode estar vazio e deve conter no máximo 100 caracteres.');
+      end;
+
+
+
+      if slListaErros.Count > 0 then
+      begin
+        raise Exception.Create(slListaErros.Text);
+      end;
+
+      Result := true;
+    except
+      on E:Exception do
+      begin
+        Result := false;
+        erros := E.Message;
+      end;
+    end;
+  finally
+    FreeAndNil(objPessoa);
+    FreeAndNil(slListaErros);
+  end;
+end;
+
+end.

@@ -1,0 +1,15 @@
+program ClientProject;
+
+uses
+  Vcl.Forms,
+  dmPrincipal in 'dmPrincipal.pas' {DataModule1: TDataModule},
+  serverClasses in 'serverClasses.pas';
+
+{$R *.res}
+
+begin
+  Application.Initialize;
+  Application.MainFormOnTaskbar := True;
+  Application.CreateForm(TDataModule1, DataModule1);
+  Application.Run;
+end.

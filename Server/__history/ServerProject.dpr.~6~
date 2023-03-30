@@ -1,0 +1,20 @@
+program ServerProject;
+
+uses
+  Vcl.Forms,
+  Web.WebReq,
+  IdHTTPWebBrokerBridge,
+  ServerContainer in 'ServerContainer.pas' {ServerContainer1: TDataModule},
+  ServerModule in 'ServerModule.pas' {serverModule: TDSServerModule},
+  formServer in 'formServer.pas' {frmServerProject};
+
+{$R *.res}
+
+begin
+  Application.Initialize;
+  Application.MainFormOnTaskbar := True;
+  Application.CreateForm(TServerContainer1, ServerContainer1);
+  Application.CreateForm(TfrmServerProject, frmServerProject);
+  Application.Run;
+end.
+

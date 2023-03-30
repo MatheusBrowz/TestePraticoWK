@@ -1,0 +1,86 @@
+//
+// Created by the DataSnap proxy generator.
+// 29/03/2023 23:37:56
+//
+
+unit serverClasses;
+
+interface
+
+uses System.JSON, Data.DBXCommon, Data.DBXClient, Data.DBXDataSnap, Data.DBXJSON, Datasnap.DSProxy, System.Classes, System.SysUtils, Data.DB, Data.SqlExpr, Data.DBXDBReaders, Data.DBXCDSReaders, Data.DBXJSONReflect;
+
+type
+  TServerModuleClient = class(TDSAdminClient)
+  private
+    FPGDriverLinkDriverCreatedCommand: TDBXCommand;
+    FCadastrarPessoaCommand: TDBXCommand;
+  public
+    constructor Create(ADBXConnection: TDBXConnection); overload;
+    constructor Create(ADBXConnection: TDBXConnection; AInstanceOwner: Boolean); overload;
+    destructor Destroy; override;
+    procedure PGDriverLinkDriverCreated(Sender: TObject);
+    function CadastrarPessoa(pessoa: string; var erros: string): Boolean;
+  end;
+
+implementation
+
+procedure TServerModuleClient.PGDriverLinkDriverCreated(Sender: TObject);
+begin
+  if FPGDriverLinkDriverCreatedCommand = nil then
+  begin
+    FPGDriverLinkDriverCreatedCommand := FDBXConnection.CreateCommand;
+    FPGDriverLinkDriverCreatedCommand.CommandType := TDBXCommandTypes.DSServerMethod;
+    FPGDriverLinkDriverCreatedCommand.Text := 'TServerModule.PGDriverLinkDriverCreated';
+    FPGDriverLinkDriverCreatedCommand.Prepare;
+  end;
+  if not Assigned(Sender) then
+    FPGDriverLinkDriverCreatedCommand.Parameters[0].Value.SetNull
+  else
+  begin
+    FMarshal := TDBXClientCommand(FPGDriverLinkDriverCreatedCommand.Parameters[0].ConnectionHandler).GetJSONMarshaler;
+    try
+      FPGDriverLinkDriverCreatedCommand.Parameters[0].Value.SetJSONValue(FMarshal.Marshal(Sender), True);
+      if FInstanceOwner then
+        Sender.Free
+    finally
+      FreeAndNil(FMarshal)
+    end
+  end;
+  FPGDriverLinkDriverCreatedCommand.ExecuteUpdate;
+end;
+
+function TServerModuleClient.CadastrarPessoa(pessoa: string; var erros: string): Boolean;
+begin
+  if FCadastrarPessoaCommand = nil then
+  begin
+    FCadastrarPessoaCommand := FDBXConnection.CreateCommand;
+    FCadastrarPessoaCommand.CommandType := TDBXCommandTypes.DSServerMethod;
+    FCadastrarPessoaCommand.Text := 'TServerModule.CadastrarPessoa';
+    FCadastrarPessoaCommand.Prepare;
+  end;
+  FCadastrarPessoaCommand.Parameters[0].Value.SetWideString(pessoa);
+  FCadastrarPessoaCommand.Parameters[1].Value.SetWideString(erros);
+  FCadastrarPessoaCommand.ExecuteUpdate;
+  erros := FCadastrarPessoaCommand.Parameters[1].Value.GetWideString;
+  Result := FCadastrarPessoaCommand.Parameters[2].Value.GetBoolean;
+end;
+
+constructor TServerModuleClient.Create(ADBXConnection: TDBXConnection);
+begin
+  inherited Create(ADBXConnection);
+end;
+
+constructor TServerModuleClient.Create(ADBXConnection: TDBXConnection; AInstanceOwner: Boolean);
+begin
+  inherited Create(ADBXConnection, AInstanceOwner);
+end;
+
+destructor TServerModuleClient.Destroy;
+begin
+  FPGDriverLinkDriverCreatedCommand.DisposeOf;
+  FCadastrarPessoaCommand.DisposeOf;
+  inherited;
+end;
+
+end.
+

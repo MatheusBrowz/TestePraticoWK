@@ -1,0 +1,35 @@
+unit Consultas.Pessoa;
+
+interface
+
+type
+
+  TConsultasPessoas = class
+  public
+    class function SqlConsultaPessoa(nome, documento : String): String;
+  end;
+
+implementation
+
+uses
+  System.Classes, System.SysUtils;
+
+{ TConsultasPessoas }
+
+class function TConsultasPessoas.SqlConsultaPessoa(nome,
+  documento: String): String;
+var
+  slSql : TStringList;
+begin
+  slSql := TStringList;
+
+  try
+
+
+    Result := slSql.Text;
+  finally
+    FreeAndNil(slSql);
+  end;
+end;
+
+end.

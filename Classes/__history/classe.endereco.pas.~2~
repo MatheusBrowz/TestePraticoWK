@@ -1,0 +1,17 @@
+unit classe.endereco;
+
+interface
+
+implementation
+
+uses
+  TClasseBase;
+
+type
+
+  TEndereco = class(TClasseBase)
+  public
+
+
+  end;
+end.

@@ -1,0 +1,58 @@
+object frmServerProject: TfrmServerProject
+  Left = 0
+  Top = 0
+  BorderStyle = bsNone
+  Caption = 'Servidor Aplica'#231#227'o Teste'
+  ClientHeight = 282
+  ClientWidth = 575
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'Segoe UI'
+  Font.Style = []
+  OldCreateOrder = False
+  PixelsPerInch = 96
+  TextHeight = 13
+  object pnBackGround: TPanel
+    Left = 0
+    Top = 0
+    Width = 575
+    Height = 282
+    Align = alClient
+    Color = clWindow
+    ParentBackground = False
+    TabOrder = 0
+    ExplicitLeft = 192
+    ExplicitTop = 80
+    ExplicitWidth = 185
+    ExplicitHeight = 41
+    object lblClose: TLabel
+      Left = 534
+      Top = 8
+      Width = 21
+      Height = 45
+      Caption = 'X'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clRed
+      Font.Height = -37
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
+      OnClick = lblCloseClick
+    end
+    object Label1: TLabel
+      Left = 80
+      Top = 88
+      Width = 264
+      Height = 37
+      Caption = 'Servidor de Aplica'#231#227'o '
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = 5395026
+      Font.Height = -27
+      Font.Name = 'Segoe UI'
+      Font.Style = []
+      ParentFont = False
+    end
+  end
+end

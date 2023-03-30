@@ -1,0 +1,24 @@
+unit classe.base;
+
+interface
+
+type
+
+  TClasseBase = class
+  public
+    class function ToStandardJson(): String;
+  end;
+
+implementation
+
+uses
+  REST.Json;
+
+{ TClasseBase }
+
+class function TClasseBase.ToStandardJson: String;
+begin
+  Result := TJson.
+end;
+
+end.

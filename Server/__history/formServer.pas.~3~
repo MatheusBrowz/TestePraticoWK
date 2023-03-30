@@ -1,0 +1,32 @@
+unit formServer;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.StdCtrls;
+
+type
+  TfrmServerProject = class(TForm)
+    pnBackGround: TPanel;
+    lblClose: TLabel;
+    procedure lblCloseClick(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  frmServerProject: TfrmServerProject;
+
+implementation
+
+{$R *.dfm}
+
+procedure TfrmServerProject.lblCloseClick(Sender: TObject);
+begin
+  Close;
+end;
+
+end.

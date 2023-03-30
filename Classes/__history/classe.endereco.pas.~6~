@@ -1,0 +1,59 @@
+unit classe.endereco;
+
+interface
+
+implementation
+
+uses
+  classe.base;
+
+type
+
+  TEndereco = class(TClasseBase)
+  private
+    FnomeBairro: String;
+    Fuf: String;
+    Fcomplemento: String;
+    FnomeCidade: String;
+    FnomeLogradouro: String;
+
+    procedure Setcomplemento(const Value: String);
+    procedure SetnomeBairro(const Value: String);
+    procedure SetnomeCidade(const Value: String);
+    procedure SetnomeLogradouro(const Value: String);
+    procedure Setuf(const Value: String);
+  public
+    property uf : String read Fuf write Setuf;
+    property nomeCidade : String read FnomeCidade write SetnomeCidade;
+    property nomeBairro : String read FnomeBairro write SetnomeBairro;
+    property nomeLogradouro : String read FnomeLogradouro write SetnomeLogradouro;
+    property complemento : String read Fcomplemento write Setcomplemento;
+  end;
+{ TEndereco }
+
+procedure TEndereco.Setcomplemento(const Value: String);
+begin
+  Fcomplemento := Value;
+end;
+
+procedure TEndereco.SetnomeBairro(const Value: String);
+begin
+  FnomeBairro := Value;
+end;
+
+procedure TEndereco.SetnomeCidade(const Value: String);
+begin
+  FnomeCidade := Value;
+end;
+
+procedure TEndereco.SetnomeLogradouro(const Value: String);
+begin
+  FnomeLogradouro := Value;
+end;
+
+procedure TEndereco.Setuf(const Value: String);
+begin
+  Fuf := Value;
+end;
+
+end.

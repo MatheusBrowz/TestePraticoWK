@@ -1,0 +1,24 @@
+unit Util.Strings;
+
+interface
+
+type
+
+  TUtilString = class
+  public
+    class function RemoverEspacosEmBranco(pTexto): String;
+  end;
+
+implementation
+
+uses
+  System.StrUtils;
+
+{ TUtilString }
+
+class function TUtilString.RemoverEspacosEmBranco(pTexto): String;
+begin
+  Result := ReplaceStr(pTexto, ' ', '');
+end;
+
+end.

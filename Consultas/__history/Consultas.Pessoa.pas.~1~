@@ -1,0 +1,28 @@
+unit Consultas.Pessoa;
+
+interface
+
+type
+
+  TConsultasPessoas = class
+  public
+    class function SqlConsultaPessoa(nome, documento : String): String;
+  end;
+
+implementation
+
+{ TConsultasPessoas }
+
+class function TConsultasPessoas.SqlConsultaPessoa(nome,
+  documento: String): String;
+var
+  slSql : TStringList;
+begin
+  try
+
+  finally
+
+  end;
+end;
+
+end.

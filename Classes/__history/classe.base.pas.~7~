@@ -1,0 +1,24 @@
+unit classe.base;
+
+interface
+
+type
+
+  TClasseBase = class
+  public
+    class function ToStandardJson(AOptions: TJsonOptions = [joDateIsUTC, joDateFormatISO8601]): String;
+  end;
+
+implementation
+
+uses
+  REST.Json;
+
+{ TClasseBase }
+
+class function TClasseBase.ToStandardJson(AOptions: TJsonOptions = [joDateIsUTC, joDateFormatISO8601]): String;
+begin
+  Result := TJson.ObjectToJsonString()
+end;
+
+end.

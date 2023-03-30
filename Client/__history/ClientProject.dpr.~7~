@@ -1,0 +1,21 @@
+program ClientProject;
+
+uses
+  Vcl.Forms,
+  dmPrincipal in 'dmPrincipal.pas' {DataModule1: TDataModule},
+  serverClasses in 'serverClasses.pas',
+  classe.pessoa in '..\Classes\classe.pessoa.pas',
+  classe.endereco in '..\Classes\classe.endereco.pas',
+  classe.base in '..\Classes\classe.base.pas',
+  frmPessoas in 'forms\frmPessoas.pas' {Form1},
+  Consultas.Pessoa in '..\Consultas\Consultas.Pessoa.pas';
+
+{$R *.res}
+
+begin
+  Application.Initialize;
+  Application.MainFormOnTaskbar := True;
+  Application.CreateForm(TDataModule1, DataModule1);
+  Application.CreateForm(TForm1, Form1);
+  Application.Run;
+end.
