@@ -1,0 +1,7 @@
+*** O arquivo deve ser .txt ou .csv 
+*** Cada linha representa um registro
+*** Deve ser utilizada a seguinte tabulação
+** natureza;numero do documento;nome;sobrenome;cep **
+
+*** Dessa forma o exemplo da linha deve ser
+** 3421;44973986844;nome1;sobrenome1;07151300 **

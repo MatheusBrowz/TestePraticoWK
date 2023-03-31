@@ -11,13 +11,7 @@ type
   TForm1 = class(TForm)
     pgPrincipal: TPageControl;
     tsPessoas: TTabSheet;
-    tsPesquisa: TTabSheet;
     tsDados: TTabSheet;
-    btnPesquisa: TButton;
-    Label1: TLabel;
-    Label2: TLabel;
-    edtPesquisaNome: TEdit;
-    edtPesquisaDocumento: TEdit;
     DBGrid1: TDBGrid;
     DBGrid2: TDBGrid;
     pnEndereço: TPanel;
@@ -60,8 +54,12 @@ type
     miIncluirLote: TMenuItem;
     miAtualizarEnderecos: TMenuItem;
     Panel3: TPanel;
-    Label14: TLabel;
     OpenDialog1: TOpenDialog;
+    Label1: TLabel;
+    edtPesquisaNome: TEdit;
+    Label2: TLabel;
+    edtPesquisaDocumento: TEdit;
+    btnPesquisa: TButton;
     procedure btnPesquisaClick(Sender: TObject);
     procedure cdsPessoaAfterScroll(DataSet: TDataSet);
     procedure btnIncluirClick(Sender: TObject);
@@ -70,12 +68,12 @@ type
     procedure btnGravarClick(Sender: TObject);
     procedure btnCancelarClick(Sender: TObject);
     procedure pgPrincipalChanging(Sender: TObject; var AllowChange: Boolean);
-    procedure Label14Click(Sender: TObject);
     procedure btnExcluirClick(Sender: TObject);
     procedure miIncluirLoteClick(Sender: TObject);
     procedure btnIncluirLoteClick(Sender: TObject);
     procedure miAtualizarEnderecosClick(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+    procedure tsPessoasShow(Sender: TObject);
   private
     Finclusao: Boolean;
     FatualizandoCepViaCep: Boolean;
@@ -102,7 +100,7 @@ implementation
 
 {$R *.dfm}
 
-uses uDmPrincipal, Consultas.Pessoa, serverClasses, Winapi.ShellAPI;
+uses uDmPrincipal, Consultas.Pessoa, serverClasses, Winapi.ShellAPI, System.Threading;
 
 procedure TForm1.btnCancelarClick(Sender: TObject);
 begin
@@ -112,9 +110,23 @@ end;
 
 procedure TForm1.btnEditarClick(Sender: TObject);
 begin
-  inclusao := false;
-  pgPrincipal.ActivePage := tsDados;
-  CarregarCamposEdicao();
+  if atualizandoCepViaCep then
+  begin
+    TThread.Synchronize(
+      TThread.Current,
+      procedure
+      begin
+        ShowMessage('Está ocorrendo atualização de CEP, não é possível editar a pessoa!');
+        Exit;
+      end
+    );
+  end
+  else
+  begin
+    inclusao := false;
+    pgPrincipal.ActivePage := tsDados;
+    CarregarCamposEdicao();
+  end;
 end;
 
 procedure TForm1.btnExcluirClick(Sender: TObject);
@@ -122,27 +134,41 @@ var
   smServerMethods : TServerModuleClient;
   erros : String;
 begin
-  if cdsPessoa.IsEmpty() then
+  if atualizandoCepViaCep then
   begin
-    ShowMessage('Não existem registros para exclusão!');
-    Exit;
-  end;
-
-  if Application.MessageBox(PChar('Confirma a exclusão do registro?'), 'Pergunta', MB_YESNO) = IDYES then
-  begin
-    smServerMethods := TServerModuleClient.Create(dmPrincipal.DataSnapConnection.DBXConnection);
-
-    try
-      if not smServerMethods.Delete(cdsPessoa.FieldByName('idpessoa').AsInteger, erros) then
+    TThread.Synchronize(
+      TThread.Current,
+      procedure
       begin
-        ShowMessage('Não foi possível deletar a pessoa: ' + erros);
+        ShowMessage('Está ocorrendo atualização de CEP, não é possível deletar a pessoa!');
         Exit;
-      end;
+      end
+    );
+  end
+  else
+  begin
+    if cdsPessoa.IsEmpty() then
+    begin
+      ShowMessage('Não existem registros para exclusão!');
+      Exit;
+    end;
 
-      cdsPessoa.Refresh;
-      ShowMessage('Pessoa excluída com sucesso!');
-    finally
-      FreeAndNil(smServerMethods);
+    if Application.MessageBox(PChar('Confirma a exclusão do registro?'), 'Pergunta', MB_YESNO) = IDYES then
+    begin
+      smServerMethods := TServerModuleClient.Create(dmPrincipal.DataSnapConnection.DBXConnection);
+
+      try
+        if not smServerMethods.Delete(cdsPessoa.FieldByName('idpessoa').AsInteger, erros) then
+        begin
+          ShowMessage('Não foi possível deletar a pessoa: ' + erros);
+          Exit;
+        end;
+
+        cdsPessoa.Refresh;
+        ShowMessage('Pessoa excluída com sucesso!');
+      finally
+        FreeAndNil(smServerMethods);
+      end;
     end;
   end;
 end;
@@ -235,17 +261,23 @@ end;
 
 procedure TForm1.btnPesquisaClick(Sender: TObject);
 begin
-  cdsPessoa.Close;
-  cdsPessoa.CommandText := TConsultasPessoas.SqlConsultaPessoa(String(edtPesquisaNome.Text).Trim, String(edtPesquisaDocumento.Text));
-  cdsPessoa.Open;
+  TThread.Synchronize(
+    TThread.CurrentThread,
+    procedure
+    begin
+      cdsPessoa.Close;
+      cdsPessoa.CommandText := TConsultasPessoas.SqlConsultaPessoa(String(edtPesquisaNome.Text).Trim, String(edtPesquisaDocumento.Text));
+      cdsPessoa.Open;
 
-  if cdsPessoa.IsEmpty() then
-  begin
-    ShowMessage('Não foi possível encontrar uma pessoa com os filtros informados!');
-    Exit;
-  end;
+      if cdsPessoa.IsEmpty() then
+      begin
+        ShowMessage('Não foi possível encontrar uma pessoa com os filtros informados!');
+        Exit;
+      end;
 
-  pgPrincipal.ActivePage := tsPessoas;
+      pgPrincipal.ActivePage := tsPessoas;
+    end
+  );
 end;
 
 procedure TForm1.CarregarCamposEdicao;
@@ -290,9 +322,12 @@ end;
 
 procedure TForm1.cdsPessoaAfterScroll(DataSet: TDataSet);
 begin
-  cdsEndereco.Close;
-  cdsEndereco.CommandText := TConsultasPessoas.SqlConsultaEnderecoPessoa(cdsPessoa.FieldByName('idpessoa').AsInteger);
-  cdsEndereco.Open;
+  if not atualizandoCepViaCep then
+  begin
+    cdsEndereco.Close;
+    cdsEndereco.CommandText := TConsultasPessoas.SqlConsultaEnderecoPessoa(cdsPessoa.FieldByName('idpessoa').AsInteger);
+    cdsEndereco.Open;
+  end;
 end;
 
 procedure TForm1.DoTerminate(Sender: TObject);
@@ -319,7 +354,9 @@ end;
 
 procedure TForm1.FormShow(Sender: TObject);
 begin
-  pgPrincipal.ActivePage := tsPesquisa;
+  pgPrincipal.ActivePage := tsPessoas;
+
+
 end;
 
 function TForm1.GetTempDir: String;
@@ -337,11 +374,6 @@ var
   end;
 begin
   Result := API_GetEnvironmentVariable('TEMP');
-end;
-
-procedure TForm1.Label14Click(Sender: TObject);
-begin
-  pgPrincipal.ActivePage := tsPesquisa;
 end;
 
 procedure TForm1.LimparCamposEdicao;
@@ -363,7 +395,7 @@ procedure TForm1.miAtualizarEnderecosClick(Sender: TObject);
 begin
   atualizandoCepViaCep := true;
   miAtualizarEnderecos.Enabled := false;
-  TThread.CreateAnonymousThread(
+  TTask.Run(
     procedure
     var
       smServerMethods : TServerModuleClient;
@@ -376,7 +408,7 @@ begin
         FreeAndNil(smServerMethods);
 
         TThread.Synchronize(
-          TThread.CurrentThread,
+          TThread.Current,
           procedure
           begin
             DoTerminate(nil);
@@ -464,6 +496,13 @@ end;
 procedure TForm1.Setinclusao(const Value: Boolean);
 begin
   Finclusao := Value;
+end;
+
+procedure TForm1.tsPessoasShow(Sender: TObject);
+begin
+  cdsPessoa.Close;
+  cdsPessoa.CommandText := TConsultasPessoas.SqlConsultaPessoa('', '');
+  cdsPessoa.Open;
 end;
 
 end.

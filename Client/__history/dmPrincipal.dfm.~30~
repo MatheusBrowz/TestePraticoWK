@@ -1,0 +1,81 @@
+object DataModule1: TDataModule1
+  OldCreateOrder = False
+  Height = 379
+  Width = 656
+  object DataSnapConnection: TSQLConnection
+    ConnectionName = 'DataSnapCONNECTION'
+    DriverName = 'DataSnap'
+    LoginPrompt = False
+    Params.Strings = (
+      'DriverUnit=Data.DBXDataSnap'
+      'CommunicationProtocol=tcp/ip'
+      'DatasnapContext=datasnap/'
+      
+        'DriverAssemblyLoader=Borland.Data.TDBXClientDriverLoader,Borland' +
+        '.Data.DbxClientDriver,Version=22.0.0.0,Culture=neutral,PublicKey' +
+        'Token=91d62ebb5b0d1b1b'
+      'DriverName=DataSnap'
+      'HostName=localhost'
+      'port=511'
+      'DSAuthenticationUser=connection'
+      'DSAuthenticationPassword=password'
+      'DBHostName=localhost'
+      'DBName=DataBaseTeste'
+      'DBUserName=postgres'
+      'DBPassword=1234'
+      'Filters={}')
+    Connected = True
+    Left = 91
+    Top = 26
+    UniqueId = '{9ED9B995-3743-46ED-82CC-9913B612D009}'
+  end
+  object ServerProvider: TDSProviderConnection
+    ServerClassName = 'TserverModule'
+    Connected = True
+    SQLConnection = DataSnapConnection
+    Left = 87
+    Top = 104
+  end
+  object ClientDataSet1: TClientDataSet
+    Aggregates = <>
+    Params = <>
+    ProviderName = 'dspTeste'
+    Left = 88
+    Top = 184
+  end
+  object PGDriverLink: TFDPhysPgDriverLink
+    VendorLib = 'Y:\Matheus.Lima\Aplica'#231#227'o Teste\Client\libpq.dll'
+    Left = 232
+    Top = 24
+  end
+  object PGConnection: TFDConnection
+    ConnectionName = 'PG'
+    Params.Strings = (
+      'Server=localhost'
+      'User_Name=postgres'
+      'Password=1234'
+      'Database=DataBaseTeste'
+      'DriverID=PG')
+    Connected = True
+    LoginPrompt = False
+    Left = 448
+    Top = 128
+  end
+  object FDPhysPgDriverLink1: TFDPhysPgDriverLink
+    VendorLib = 'Y:\Matheus.Lima\Aplica'#231#227'o Teste\libpq.dll'
+    Left = 496
+    Top = 280
+  end
+  object fdTeste: TFDQuery
+    Connection = PGConnection
+    SQL.Strings = (
+      'SELECT FIELD1 FROM teste')
+    Left = 344
+    Top = 208
+  end
+  object dspTeste: TDataSetProvider
+    DataSet = fdTeste
+    Left = 352
+    Top = 216
+  end
+end

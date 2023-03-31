@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>2023/03/29 12:25:41.000.243,=C:\Users\matheus.lima\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>2023/03/29 12:26:50.000.591,C:\Users\matheus.lima\Documents\Embarcadero\Studio\Projects\Project1.dproj=Y:\Matheus.Lima\Aplicação Teste\ClientProject.dproj</Transaction>
+    <Transaction>2023/03/29 12:27:05.000.576,=Y:\Matheus.Lima\Aplicação Teste\Unit1.pas</Transaction>
+    <Transaction>2023/03/29 12:28:13.000.474,Y:\Matheus.Lima\Aplicação Teste\Unit1.pas=Y:\Matheus.Lima\Aplicação Teste\Client\dmPrincipal.pas</Transaction>
+    <Transaction>2023/03/29 12:28:13.000.474,Y:\Matheus.Lima\Aplicação Teste\Unit1.dfm=Y:\Matheus.Lima\Aplicação Teste\Client\dmPrincipal.dfm</Transaction>
+    <Transaction>2023/03/29 12:29:44.000.639,Y:\Matheus.Lima\Aplicação Teste\ClientProject.dproj=Y:\Matheus.Lima\Aplicação Teste\Client\ClientProject.dproj</Transaction>
+    <Transaction>2023/03/29 12:52:11.000.890,=Y:\Matheus.Lima\Aplicação Teste\Client\Unit1.pas</Transaction>
+    <Transaction>2023/03/29 12:52:27.000.891,Y:\Matheus.Lima\Aplicação Teste\Client\Unit1.pas=Y:\Matheus.Lima\Aplicação Teste\Client\serverClasses.pas</Transaction>
+    <Transaction>2023/03/29 20:13:51.000.678,=Y:\Matheus.Lima\Aplicação Teste\Client\Unit1.pas</Transaction>
+    <Transaction>2023/03/29 20:14:53.000.958,Y:\Matheus.Lima\Aplicação Teste\Client\Unit1.dfm=Y:\Matheus.Lima\Aplicação Teste\Client\frmTeste.dfm</Transaction>
+    <Transaction>2023/03/29 20:14:53.000.958,Y:\Matheus.Lima\Aplicação Teste\Client\Unit1.pas=Y:\Matheus.Lima\Aplicação Teste\Client\frmTeste.pas</Transaction>
+  </Transactions>
+</BorlandProject>

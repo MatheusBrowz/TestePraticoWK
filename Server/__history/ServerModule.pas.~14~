@@ -1,0 +1,54 @@
+unit serverModule;
+
+interface
+
+uses System.SysUtils, System.Classes, System.Json,
+    DataSnap.DSProviderDataModuleAdapter,
+    Datasnap.DSServer, Datasnap.DSAuth, FireDAC.Stan.Intf, FireDAC.Stan.Option,
+  FireDAC.Stan.Error, FireDAC.UI.Intf, FireDAC.Phys.Intf, FireDAC.Stan.Def,
+  FireDAC.Stan.Pool, FireDAC.Stan.Async, FireDAC.Phys, FireDAC.Phys.PG,
+  FireDAC.Phys.PGDef, FireDAC.VCLUI.Wait, Data.DB, FireDAC.Comp.Client,
+  FireDAC.Stan.Param, FireDAC.DatS, FireDAC.DApt.Intf, FireDAC.DApt,
+  FireDAC.Comp.DataSet, Datasnap.Provider, Datasnap.DBClient;
+
+type
+  TServerModule = class(TDSServerModule)
+    PGConnection: TFDConnection;
+    fdTeste: TFDQuery;
+    dspTeste: TDataSetProvider;
+    PGDriverLink: TFDPhysPgDriverLink;
+    ClientDataSet1: TClientDataSet;
+    procedure PGDriverLinkDriverCreated(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+    function EchoString(Value: string): string;
+    function ReverseString(Value: string): string;
+  end;
+
+implementation
+
+
+{$R *.dfm}
+
+
+uses System.StrUtils, Vcl.Forms;
+
+function TServerModule.EchoString(Value: string): string;
+begin
+  Result := Value;
+end;
+
+procedure TServerModule.PGDriverLinkDriverCreated(Sender: TObject);
+begin
+  PGDriverLink.VendorLib := ExtractFilePath(Application.ExeName) + 'libpq.dll';
+end;
+
+function TServerModule.ReverseString(Value: string): string;
+begin
+  Result := System.StrUtils.ReverseString(Value);
+end;
+
+end.
+

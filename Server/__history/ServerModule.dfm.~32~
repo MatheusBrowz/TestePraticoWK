@@ -1,0 +1,43 @@
+object serverModule: TserverModule
+  OldCreateOrder = False
+  Height = 253
+  Width = 416
+  object PGConnection: TFDConnection
+    ConnectionName = 'PG'
+    Params.Strings = (
+      'Server=localhost'
+      'User_Name=postgres'
+      'Password=1234'
+      'Database=DataBaseTeste'
+      'DriverID=PG')
+    Connected = True
+    LoginPrompt = False
+    Left = 40
+    Top = 16
+  end
+  object fdTeste: TFDQuery
+    Connection = PGConnection
+    SQL.Strings = (
+      'SELECT FIELD1 FROM teste')
+    Left = 128
+    Top = 16
+  end
+  object dspTeste: TDataSetProvider
+    DataSet = fdTeste
+    Left = 136
+    Top = 24
+  end
+  object PGDriverLink: TFDPhysPgDriverLink
+    VendorLib = 'Y:\Matheus.Lima\Aplica'#231#227'o Teste\libpq.dll'
+    OnDriverCreated = PGDriverLinkDriverCreated
+    Left = 64
+    Top = 80
+  end
+  object ClientDataSet1: TClientDataSet
+    Aggregates = <>
+    Params = <>
+    ProviderName = 'dspTeste'
+    Left = 144
+    Top = 32
+  end
+end

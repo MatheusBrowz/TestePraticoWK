@@ -107,17 +107,14 @@
         </DelphiCompile>
         <DCCReference Include="ServerContainer.pas">
             <Form>ServerContainer1</Form>
-            <FormType>dfm</FormType>
             <DesignClass>TDataModule</DesignClass>
         </DCCReference>
         <DCCReference Include="ServerModule.pas">
             <Form>serverModule</Form>
-            <FormType>dfm</FormType>
             <DesignClass>TDSServerModule</DesignClass>
         </DCCReference>
         <DCCReference Include="formServer.pas">
             <Form>frmServerProject</Form>
-            <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="..\Classes\classe.base.pas"/>
         <DCCReference Include="..\Classes\classe.endereco.pas"/>

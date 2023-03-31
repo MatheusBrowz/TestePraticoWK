@@ -59,7 +59,7 @@ type
     fdEnderecosParaIntegracao: TFDQuery;
     dspEnderecosParaIntegracao: TDataSetProvider;
     cdsEnderecosParaIntegracao: TClientDataSet;
-    procedure PGDriverLinkDriverCreated(Sender: TObject);
+    procedure PGConnectionBeforeConnect(Sender: TObject);
 
   private
     function GravarPessoas(listaPessoa : string): Boolean;
@@ -309,7 +309,7 @@ begin
 
       objListaPessoa.AddPessoa(TJson.JsonToObject<TPessoa>(pessoa));
 
-      if not GravarPessoas(pessoa) then
+      if not GravarPessoas(objListaPessoa.ToStandardJson()) then
       begin
         raise Exception.Create('Houve um erro inesperado ao gravar a pessoa!');
       end;
@@ -506,9 +506,9 @@ begin
   end;
 end;
 
-procedure TServerModule.PGDriverLinkDriverCreated(Sender: TObject);
+procedure TServerModule.PGConnectionBeforeConnect(Sender: TObject);
 begin
-  PGDriverLink.VendorLib := ExtractFilePath(Application.ExeName) + 'libpq.dll';
+  PGDriverLink.VendorHome := ExtractFilePath(Application.ExeName);
 end;
 
 function TServerModule.RetornaIdPessoa(pessoa: string): integer;

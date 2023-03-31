@@ -12,6 +12,7 @@ object serverModule: TserverModule
       'DriverID=PG')
     Connected = True
     LoginPrompt = False
+    BeforeConnect = PGConnectionBeforeConnect
     Left = 40
     Top = 16
   end
@@ -62,7 +63,6 @@ object serverModule: TserverModule
     Top = 248
   end
   object PGDriverLink: TFDPhysPgDriverLink
-    OnDriverCreated = PGDriverLinkDriverCreated
     Left = 552
     Top = 16
   end

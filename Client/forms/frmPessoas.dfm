@@ -2,7 +2,7 @@
   Left = 0
   Top = 0
   Caption = 'Pessoas'
-  ClientHeight = 436
+  ClientHeight = 505
   ClientWidth = 873
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -19,101 +19,23 @@
     Left = 0
     Top = 0
     Width = 873
-    Height = 436
-    ActivePage = tsPesquisa
+    Height = 505
+    ActivePage = tsPessoas
     Align = alClient
     TabOrder = 0
     OnChanging = pgPrincipalChanging
-    ExplicitWidth = 852
-    ExplicitHeight = 454
-    object tsPesquisa: TTabSheet
-      Caption = 'Pesquisa'
-      ImageIndex = 1
-      ExplicitWidth = 844
-      ExplicitHeight = 426
-      object Label1: TLabel
-        Left = 32
-        Top = 24
-        Width = 107
-        Height = 21
-        Caption = 'Primeiro Nome'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -16
-        Font.Name = 'Segoe UI'
-        Font.Style = []
-        ParentFont = False
-      end
-      object Label2: TLabel
-        Left = 32
-        Top = 88
-        Width = 81
-        Height = 21
-        Caption = 'Documento'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -16
-        Font.Name = 'Segoe UI'
-        Font.Style = []
-        ParentFont = False
-      end
-      object btnPesquisa: TButton
-        Left = 640
-        Top = 184
-        Width = 175
-        Height = 41
-        Caption = 'Pesquisar'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = 11053224
-        Font.Height = -19
-        Font.Name = 'Segoe UI'
-        Font.Style = []
-        ParentFont = False
-        TabOrder = 0
-        OnClick = btnPesquisaClick
-      end
-      object edtPesquisaNome: TEdit
-        Left = 32
-        Top = 51
-        Width = 783
-        Height = 29
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -16
-        Font.Name = 'Segoe UI'
-        Font.Style = []
-        MaxLength = 100
-        ParentFont = False
-        TabOrder = 1
-      end
-      object edtPesquisaDocumento: TEdit
-        Left = 32
-        Top = 115
-        Width = 783
-        Height = 29
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -16
-        Font.Name = 'Segoe UI'
-        Font.Style = []
-        MaxLength = 20
-        ParentFont = False
-        TabOrder = 2
-      end
-    end
     object tsPessoas: TTabSheet
       Caption = 'Pessoas'
-      ExplicitWidth = 844
-      ExplicitHeight = 426
+      OnShow = tsPessoasShow
       object DBGrid1: TDBGrid
         Left = 0
-        Top = 82
+        Top = 106
         Width = 865
-        Height = 98
+        Height = 143
         Align = alClient
         DataSource = dsPessoa
         ReadOnly = True
-        TabOrder = 0
+        TabOrder = 1
         TitleFont.Charset = DEFAULT_CHARSET
         TitleFont.Color = clWindowText
         TitleFont.Height = -11
@@ -156,13 +78,13 @@
       end
       object DBGrid2: TDBGrid
         Left = 0
-        Top = 221
+        Top = 290
         Width = 865
         Height = 125
         Align = alBottom
         DataSource = dsEndereco
         ReadOnly = True
-        TabOrder = 1
+        TabOrder = 2
         TitleFont.Charset = DEFAULT_CHARSET
         TitleFont.Color = clWindowText
         TitleFont.Height = -11
@@ -212,7 +134,7 @@
       end
       object pnEndereço: TPanel
         Left = 0
-        Top = 180
+        Top = 249
         Width = 865
         Height = 41
         Align = alBottom
@@ -227,14 +149,11 @@
         Font.Style = []
         ParentBackground = False
         ParentFont = False
-        TabOrder = 2
-        ExplicitLeft = 328
-        ExplicitTop = 200
-        ExplicitWidth = 185
+        TabOrder = 3
       end
       object Panel1: TPanel
         Left = 0
-        Top = 41
+        Top = 65
         Width = 865
         Height = 41
         Align = alTop
@@ -249,21 +168,17 @@
         Font.Style = []
         ParentBackground = False
         ParentFont = False
-        TabOrder = 3
-        ExplicitLeft = 328
-        ExplicitTop = 200
-        ExplicitWidth = 185
+        TabOrder = 4
       end
       object pnBotoesAcoes: TPanel
         Left = 0
-        Top = 346
+        Top = 415
         Width = 865
         Height = 62
         Align = alBottom
         Color = clWindow
         ParentBackground = False
-        TabOrder = 4
-        ExplicitTop = 352
+        TabOrder = 5
         object btnIncluir: TButton
           Left = 16
           Top = 9
@@ -331,34 +246,86 @@
         Left = 0
         Top = 0
         Width = 865
-        Height = 41
+        Height = 65
         Align = alTop
         BevelOuter = bvNone
         Color = clWindow
         ParentBackground = False
-        TabOrder = 5
-        ExplicitTop = -6
-        object Label14: TLabel
-          Left = 15
-          Top = 8
-          Width = 172
+        TabOrder = 0
+        object Label1: TLabel
+          Left = 11
+          Top = 6
+          Width = 89
           Height = 17
-          Caption = '<- VOLTAR PARA PESQUISA'
+          Caption = 'Primeiro Nome'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Segoe UI'
-          Font.Style = [fsBold, fsItalic]
+          Font.Style = []
           ParentFont = False
-          OnClick = Label14Click
+        end
+        object Label2: TLabel
+          Left = 445
+          Top = 6
+          Width = 67
+          Height = 17
+          Caption = 'Documento'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -13
+          Font.Name = 'Segoe UI'
+          Font.Style = []
+          ParentFont = False
+        end
+        object edtPesquisaNome: TEdit
+          Left = 11
+          Top = 30
+          Width = 428
+          Height = 25
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -13
+          Font.Name = 'Segoe UI'
+          Font.Style = []
+          MaxLength = 100
+          ParentFont = False
+          TabOrder = 0
+        end
+        object edtPesquisaDocumento: TEdit
+          Left = 445
+          Top = 30
+          Width = 292
+          Height = 25
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -13
+          Font.Name = 'Segoe UI'
+          Font.Style = []
+          MaxLength = 20
+          ParentFont = False
+          TabOrder = 1
+        end
+        object btnPesquisa: TButton
+          Left = 743
+          Top = 30
+          Width = 102
+          Height = 27
+          Caption = 'Pesquisar'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = 11053224
+          Font.Height = -13
+          Font.Name = 'Segoe UI'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 2
+          OnClick = btnPesquisaClick
         end
       end
     end
     object tsDados: TTabSheet
       Caption = 'Dados'
       ImageIndex = 2
-      ExplicitLeft = 8
-      ExplicitTop = 28
       object Label3: TLabel
         Left = 16
         Top = 16
@@ -506,7 +473,7 @@
         Left = 16
         Top = 36
         Width = 361
-        Height = 22
+        Height = 25
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -13
@@ -520,7 +487,7 @@
         Left = 392
         Top = 36
         Width = 361
-        Height = 22
+        Height = 25
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -13
@@ -534,7 +501,7 @@
         Left = 16
         Top = 84
         Width = 361
-        Height = 22
+        Height = 25
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -13
@@ -549,7 +516,7 @@
         Left = 392
         Top = 84
         Width = 175
-        Height = 22
+        Height = 25
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -13
@@ -564,7 +531,7 @@
         Left = 578
         Top = 84
         Width = 175
-        Height = 22
+        Height = 25
         Color = clBtnFace
         Enabled = False
         Font.Charset = DEFAULT_CHARSET
@@ -580,7 +547,7 @@
         Left = 16
         Top = 165
         Width = 121
-        Height = 22
+        Height = 25
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -13
@@ -595,7 +562,7 @@
         Left = 152
         Top = 165
         Width = 601
-        Height = 22
+        Height = 25
         Color = clBtnFace
         Enabled = False
         Font.Charset = DEFAULT_CHARSET
@@ -611,7 +578,7 @@
         Left = 16
         Top = 221
         Width = 297
-        Height = 22
+        Height = 25
         Color = clBtnFace
         Enabled = False
         Font.Charset = DEFAULT_CHARSET
@@ -627,7 +594,7 @@
         Left = 392
         Top = 221
         Width = 361
-        Height = 22
+        Height = 25
         Color = clBtnFace
         Enabled = False
         Font.Charset = DEFAULT_CHARSET
@@ -643,7 +610,7 @@
         Left = 16
         Top = 275
         Width = 737
-        Height = 22
+        Height = 25
         Color = clBtnFace
         Enabled = False
         Font.Charset = DEFAULT_CHARSET
@@ -659,7 +626,7 @@
         Left = 324
         Top = 221
         Width = 53
-        Height = 22
+        Height = 25
         Color = clBtnFace
         Enabled = False
         Font.Charset = DEFAULT_CHARSET
@@ -673,7 +640,7 @@
       end
       object Panel2: TPanel
         Left = 0
-        Top = 352
+        Top = 421
         Width = 865
         Height = 56
         Align = alBottom
@@ -716,6 +683,7 @@
   end
   object cdsPessoa: TClientDataSet
     Aggregates = <>
+    PacketRecords = 10
     Params = <>
     ProviderName = 'dspPesquisaPessoa'
     RemoteServer = dmPrincipal.ServerProvider

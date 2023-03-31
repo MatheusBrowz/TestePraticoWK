@@ -1,0 +1,565 @@
+unit serverModule;
+
+interface
+
+uses System.SysUtils, System.Classes, System.Json,
+    DataSnap.DSProviderDataModuleAdapter,
+    Datasnap.DSServer, Datasnap.DSAuth, FireDAC.Stan.Intf, FireDAC.Stan.Option,
+  FireDAC.Stan.Error, FireDAC.UI.Intf, FireDAC.Phys.Intf, FireDAC.Stan.Def,
+  FireDAC.Stan.Pool, FireDAC.Stan.Async, FireDAC.Phys, FireDAC.Phys.PG,
+  FireDAC.Phys.PGDef, FireDAC.VCLUI.Wait, Data.DB, FireDAC.Comp.Client,
+  FireDAC.Stan.Param, FireDAC.DatS, FireDAC.DApt.Intf, FireDAC.DApt,
+  FireDAC.Comp.DataSet, Datasnap.Provider, Datasnap.DBClient, REST.Types,
+  REST.Client, Data.Bind.Components, Data.Bind.ObjectScope;
+
+type
+  TServerModule = class(TDSServerModule)
+    PGConnection: TFDConnection;
+    fdPessoa: TFDQuery;
+    dspPessoa: TDataSetProvider;
+    PGDriverLink: TFDPhysPgDriverLink;
+    cdsPessoa: TClientDataSet;
+    fdEndereco: TFDQuery;
+    dspEndereco: TDataSetProvider;
+    cdsEndereco: TClientDataSet;
+    fdBuscaIdPessoa: TFDQuery;
+    dspBuscaIdPessoa: TDataSetProvider;
+    cdsBuscaIdPessoa: TClientDataSet;
+    fdPessoaidpessoa: TLargeintField;
+    fdPessoaflnatureza: TSmallintField;
+    fdPessoadsdocumento: TWideStringField;
+    fdPessoanmprimeiro: TWideStringField;
+    fdPessoanmsegundo: TWideStringField;
+    fdPessoadtregistro: TDateField;
+    fdEnderecoidendereco: TLargeintField;
+    fdEnderecoidpessoa: TLargeintField;
+    fdEnderecodscep: TWideStringField;
+    fdPesquisaPessoa: TFDQuery;
+    dspPesquisaPessoa: TDataSetProvider;
+    fdPesquisaEndereco: TFDQuery;
+    dspPesquisaEndereco: TDataSetProvider;
+    fdPesquisaPessoaidpessoa: TLargeintField;
+    fdPesquisaPessoaflnatureza: TSmallintField;
+    fdPesquisaPessoadsdocumento: TWideStringField;
+    fdPesquisaPessoanmprimeiro: TWideStringField;
+    fdPesquisaPessoanmsegundo: TWideStringField;
+    fdPesquisaPessoadtregistro: TDateField;
+    RESTClient1: TRESTClient;
+    RESTRequest1: TRESTRequest;
+    RESTResponse1: TRESTResponse;
+    fdEnderecoIntegracao: TFDQuery;
+    dspEnderecoIntegracao: TDataSetProvider;
+    fdEnderecoIntegracaoidendereco: TLargeintField;
+    fdEnderecoIntegracaodsuf: TWideStringField;
+    fdEnderecoIntegracaonmcidade: TWideStringField;
+    fdEnderecoIntegracaonmbairro: TWideStringField;
+    fdEnderecoIntegracaonmlogradouro: TWideStringField;
+    fdEnderecoIntegracaodscomplemento: TWideStringField;
+    cdsEnderecoIntegracao: TClientDataSet;
+    fdEnderecosParaIntegracao: TFDQuery;
+    dspEnderecosParaIntegracao: TDataSetProvider;
+    cdsEnderecosParaIntegracao: TClientDataSet;
+    procedure PGConnectionBeforeConnect(Sender: TObject);
+
+  private
+    function GravarPessoas(listaPessoa : string): Boolean;
+    function AtualizarPessoa(pessoa : string): Boolean;
+    function AtualizarEnderecoIntegracao(endereco : string): Boolean;
+    function RetornaIdPessoa(pessoa : string): integer;
+  public
+    { Public declarations }
+    function Insert(pessoa : string; var erros : String): Boolean;
+    function Update(pessoa : string; var erros : String): Boolean;
+    function Delete(idPessoa : Integer; var erros : String): Boolean;
+
+    function CadastrarLotePessoas(dados : String; var erros : string): Boolean;
+
+    procedure AtualizarEnderecoViaCep();
+  end;
+
+implementation
+
+
+{$R *.dfm}
+
+
+uses
+  System.StrUtils,
+  Vcl.Forms,
+  classe.pessoa,
+  Validador.Pessoa,
+  REST.Json,
+  Util.Strings,
+  System.Math, 
+  classe.viacep,
+  classe.endereco;
+
+function TServerModule.Update(pessoa: string;
+  var erros: String): Boolean;
+var
+  objPessoa : TPessoa;
+begin
+  objPessoa := TPessoa.Create;
+
+  try
+    try
+      var errosValidacao : String := '';
+      if not TValidadorPessoa.ValidarPessoa(pessoa, errosValidacao) then
+      begin
+        raise Exception.Create(errosValidacao);
+      end;
+
+      objPessoa := TJson.JsonToObject<TPessoa>(pessoa);
+
+      if not AtualizarPessoa(pessoa) then
+      begin
+        raise Exception.Create('Houve um erro inesperado ao atualizar a pessoa!');
+      end;
+
+      Result := true;
+    except
+      on E:Exception do
+      begin
+        Result := false;
+        erros := E.Message;
+      end;
+    end;
+  finally
+    FreeAndNil(objPessoa);
+  end;
+end;
+
+function TServerModule.AtualizarEnderecoIntegracao(endereco: string): Boolean;
+var
+  objEndereco : TEndereco;
+begin
+  Result := false;
+  objEndereco := TEndereco.Create;
+  
+  try
+    try
+      objEndereco := TJson.JsonToObject<TEndereco>(endereco);
+
+      cdsEnderecoIntegracao.Close;
+      cdsEnderecoIntegracao.ParamByName('idendereco').AsInteger := objEndereco.id;
+      cdsEnderecoIntegracao.Open;
+
+      if cdsEnderecoIntegracao.IsEmpty() then
+      begin
+        cdsEnderecoIntegracao.Append;
+      end
+      else
+      begin
+        cdsEnderecoIntegracao.Edit;
+      end;
+
+      cdsEnderecoIntegracao.FieldByName('idendereco').AsInteger := objEndereco.id;
+      cdsEnderecoIntegracao.FieldByName('dsuf').AsString := objEndereco.uf;
+      cdsEnderecoIntegracao.FieldByName('nmcidade').AsString := objEndereco.nomeCidade;
+      cdsEnderecoIntegracao.FieldByName('nmbairro').AsString := objEndereco.nomeBairro;
+      cdsEnderecoIntegracao.FieldByName('nmlogradouro').AsString := objEndereco.nomeLogradouro;
+      cdsEnderecoIntegracao.FieldByName('dscomplemento').AsString := objEndereco.complemento;
+      cdsEnderecoIntegracao.ApplyUpdates(0);      
+    except
+      on E:Exception do
+      begin
+        Result := false;
+      end;
+    end;
+  finally
+    FreeAndNil(objEndereco);
+  end;
+end;
+
+procedure TServerModule.AtualizarEnderecoViaCep;
+var
+  retornoViaCep : TClasseViacep;
+begin
+  try
+    cdsEnderecosParaIntegracao.Close;
+    cdsEnderecosParaIntegracao.Open;
+
+    cdsEnderecosParaIntegracao.First;
+    while not cdsEnderecosParaIntegracao.Eof do
+    begin
+      if not cdsEnderecosParaIntegracao.FieldByName('dscep').AsString.Trim.IsEmpty() then
+      begin
+        RESTClient1.BaseURL := 'https://viacep.com.br/ws/' + TUtilString.OnlyNumber(TUtilString.RemoverEspacosEmBranco(cdsEnderecosParaIntegracao.FieldByName('dscep').AsString.Trim)) + '/json/';
+        RESTRequest1.Method := rmGET;
+        RESTRequest1.Execute;
+
+        if RESTResponse1.StatusCode = 200 then
+        begin
+          retornoViaCep := TClasseViacep.Create;
+          retornoViaCep := TJson.JsonToObject<TClasseViacep>(RESTResponse1.Content);  
+
+          try                
+            AtualizarEnderecoIntegracao(retornoViaCep.ToClasseEndereco(cdsEnderecosParaIntegracao.FieldByName('idendereco').AsInteger));
+          finally
+            FreeAndNil(retornoViaCep);
+          end;
+        end;
+      end;
+  
+      cdsEnderecosParaIntegracao.Next;
+    end;
+  except
+
+  end;
+end;
+
+function TServerModule.AtualizarPessoa(pessoa: string): Boolean;
+var
+  objPessoa : TPessoa;
+  emTransacao : Boolean;
+begin
+  Result := false;
+  emTransacao := PGConnection.InTransaction;
+
+  try
+    try
+      if not emTransacao then
+      begin
+        PGConnection.StartTransaction;
+      end;
+
+      {$REGION '. Gravando pessoa .'}
+      objPessoa := TJson.JsonToObject<TPessoa>(pessoa);
+
+      cdsPessoa.Close;
+      cdsPessoa.CommandText := 'select pessoa.* from pessoa where idpessoa = ' + objPessoa.id.ToString();
+      cdsPessoa.Open;
+
+      if cdsPessoa.IsEmpty() then
+      begin
+        raise Exception.Create('Não foi possível encontrar a pessoa na base de dados para ser atualizada!');
+      end;
+
+      cdsPessoa.Edit;
+      cdsPessoa.FieldByName('flnatureza').AsInteger := objPessoa.natureza;
+      cdsPessoa.FieldByName('dsdocumento').AsString := TUtilString.RemoverEspacosEmBranco(objPessoa.numeroDocumento);
+      cdsPessoa.FieldByName('nmprimeiro').AsString := objPessoa.nome;
+      cdsPessoa.FieldByName('nmsegundo').AsString := objPessoa.sobrenome;
+      cdsPessoa.FieldByName('dtregistro').AsDateTime := Date;
+      cdsPessoa.ApplyUpdates(0);
+      {$ENDREGION}
+
+      cdsEndereco.Close;
+      cdsEndereco.ParamByName('idpessoa').AsInteger := objPessoa.id;
+      cdsEndereco.Open;
+
+      if not cdsEndereco.IsEmpty() then
+      begin
+        {$REGION '. Gravando Endereço .'}
+        cdsEndereco.Edit;
+        cdsEndereco.FieldByName('dscep').AsString := TUtilString.RemoverEspacosEmBranco(objPessoa.endereco.cep);
+        cdsEndereco.ApplyUpdates(0);
+        {$ENDREGION}
+      end
+      else
+      begin
+        cdsEndereco.Append;
+        cdsEndereco.FieldByName('idpessoa').AsInteger := objPessoa.id;
+        cdsEndereco.FieldByName('dscep').AsString := TUtilString.RemoverEspacosEmBranco(objPessoa.endereco.cep);
+        cdsEndereco.ApplyUpdates(0);
+      end;
+
+      if not emTransacao then
+      begin
+        PGConnection.Commit;
+      end;
+
+      Result := true;
+    except
+      on E:Exception do
+      begin
+        if not emTransacao then
+        begin
+          PGConnection.Rollback;
+        end;
+
+        Result := false;
+      end;
+    end;
+  finally
+
+  end;
+end;
+
+function TServerModule.Insert(pessoa : string; var erros : String): Boolean;
+var
+  objListaPessoa : TListaPessoa;
+begin
+  Result := false;
+  objListaPessoa := TListaPessoa.Create;
+
+  try
+    try
+      var idPessoa : Integer := RetornaIdPessoa(pessoa);
+      if idPessoa > 0 then
+      begin
+        raise Exception.Create('Pessoa informada já está cadastrada com o id ' + idPessoa.ToString());
+      end;
+
+      var errosValidacao : String := '';
+      if not TValidadorPessoa.ValidarPessoa(pessoa, errosValidacao) then
+      begin
+        raise Exception.Create(errosValidacao);
+      end;
+
+      objListaPessoa.AddPessoa(TJson.JsonToObject<TPessoa>(pessoa));
+
+      if not GravarPessoas(objListaPessoa.ToStandardJson()) then
+      begin
+        raise Exception.Create('Houve um erro inesperado ao gravar a pessoa!');
+      end;
+
+      Result := true;
+    except
+      on E:Exception do
+      begin
+        Result := false;
+        erros := E.Message;
+      end;
+    end;
+  finally
+    FreeAndNil(objListaPessoa);
+  end;
+end;
+
+function TServerModule.CadastrarLotePessoas(dados: String;
+  var erros: string): Boolean;
+var
+  slDados : TStringList;
+  arDados : TArray<String>;
+  sLinha : String;
+  iLinha : Integer;
+
+  objPessoa : TPessoa;
+  objListaPessoa : TListaPessoa;
+begin
+  Result := false;
+
+  slDados := TStringList.Create;
+  objListaPessoa := TListaPessoa.Create;
+
+  try
+    try
+      slDados.CommaText := dados;
+      iLinha := 1;
+      for sLinha in slDados do
+      begin
+        arDados := sLinha.Split([';']);
+
+        if Length(arDados) <> 5  then
+        begin
+          raise Exception.Create('Arquivo inválido na linha ' + iLinha.ToString() + ' deve conter 5 informações separadas por ponto é virgula (natureza;numerodocumento;nome;sobrenome;cep).');
+        end;
+
+        objPessoa := TPessoa.Create;
+        objPessoa.natureza := StrToIntDef(arDados[0], 0);
+        objPessoa.numeroDocumento := arDados[1];
+        objPessoa.nome := arDados[2];
+        objPessoa.sobrenome := arDados[3];
+        objPessoa.endereco.cep := arDados[4];
+
+        var idPessoa : Integer := RetornaIdPessoa(objPessoa.ToStandardJson());
+        if idPessoa > 0 then
+        begin
+          raise Exception.Create('Já existe uma pessoa cadastrada com a informação da linha ' + iLinha.ToString());
+        end;
+
+        var errosValidacao : String := '';
+        if not TValidadorPessoa.ValidarPessoa(objPessoa.ToStandardJson(), errosValidacao) then
+        begin
+          raise Exception.Create('Arquivo inválido na linha ' + iLinha.ToString() + ': ' + errosValidacao);
+        end;
+
+        objListaPessoa.AddPessoa(objPessoa);
+
+        Inc(iLinha);
+      end;
+
+      if not GravarPessoas(objListaPessoa.ToStandardJson()) then
+      begin
+        raise Exception.Create('Não foi possível cadastar o lote, ocorreu um erro inesperado.');
+      end;
+
+      Result := true;
+    except
+      on E:Exception do
+      begin
+        Result := false;
+        erros := E.Message;
+      end;
+    end;
+  finally
+    FreeAndNil(slDados);
+    FreeAndNil(objListaPessoa);
+  end;
+end;
+
+function TServerModule.Delete(idPessoa: Integer;
+  var erros: String): Boolean;
+
+begin
+  Result := false;
+
+  try
+    PGConnection.ExecSQL(
+      'delete from pessoa where idpessoa = ' + idPessoa.ToString()
+    );
+
+    Result := true;
+  except
+    on E:Exception do
+    begin
+      erros := 'Houve um erro inesperado ao deletar a pessoa!';
+      Result := false;
+    end;
+  end;
+end;
+
+function TServerModule.GravarPessoas(listaPessoa: string): Boolean;
+var
+  objListaPessoa : TListaPessoa;
+  objPessoa : TPessoa;
+  emTransacao : Boolean;
+begin
+  Result := false;
+  emTransacao := PGConnection.InTransaction;
+  objListaPessoa := TListaPessoa.Create;
+
+  try
+    try
+      if not emTransacao then
+      begin
+        PGConnection.StartTransaction;
+      end;
+
+      objListaPessoa := TJson.JsonToObject<TListaPessoa>(listaPessoa);
+
+      {$REGION '. Gravando pessoas .'}
+      for objPessoa in objListaPessoa.listaPessoas do
+      begin
+        cdsPessoa.Close;
+        cdsPessoa.Open;
+
+        cdsPessoa.Append;
+        cdsPessoa.FieldByName('flnatureza').AsInteger := objPessoa.natureza;
+        cdsPessoa.FieldByName('dsdocumento').AsString := TUtilString.RemoverEspacosEmBranco(objPessoa.numeroDocumento);
+        cdsPessoa.FieldByName('nmprimeiro').AsString := objPessoa.nome;
+        cdsPessoa.FieldByName('nmsegundo').AsString := objPessoa.sobrenome;
+        cdsPessoa.FieldByName('dtregistro').AsDateTime := Date;
+        cdsPessoa.ApplyUpdates(0);
+
+        if not objPessoa.endereco.cep.Trim.IsEmpty() then
+        begin
+          var idPessoa : Integer := RetornaIdPessoa(objPessoa.ToStandardJson());
+
+          if idPessoa <= 0 then
+          begin
+            raise Exception.Create('Houve um erro inesperado ao gravar a pessoa.');
+          end;
+
+          {$REGION '. Gravando Endereço .'}
+          cdsEndereco.Close;
+          cdsEndereco.ParamByName('idpessoa').AsInteger := idPessoa;
+          cdsEndereco.Open;
+
+          if cdsEndereco.IsEmpty() then
+          begin
+            cdsEndereco.Append;
+          end
+          else
+          begin
+            cdsEndereco.Edit;
+          end;
+
+          cdsEndereco.FieldByName('idpessoa').AsInteger := idPessoa;
+          cdsEndereco.FieldByName('dscep').AsString := TUtilString.RemoverEspacosEmBranco(objPessoa.endereco.cep);
+          cdsEndereco.ApplyUpdates(0);
+          {$ENDREGION}
+        end;
+      end;
+      {$ENDREGION}
+
+      if not emTransacao then
+      begin
+        PGConnection.Commit;
+      end;
+
+      Result := true;
+    except
+      on E:Exception do
+      begin
+        if not emTransacao then
+        begin
+          PGConnection.Rollback;
+        end;
+
+        Result := false;
+      end;
+    end;
+  finally
+    FreeAndNil(objListaPessoa);
+  end;
+end;
+
+procedure TServerModule.PGConnectionBeforeConnect(Sender: TObject);
+begin
+  try
+    PGDriverLink.VendorHome := ExtractFilePath(Application.ExeName);
+  except
+    on E:Exception do
+    begin
+      with TStringList.Create do
+      begin
+        Clear;
+        Add(PGDriverLink.VendorHome);
+        SaveToFile(ExtractFilePath(Application.ExeName) + 'logErro1.txt');
+        Free;
+      end;
+    end;
+  end;
+
+  with TStringList.Create do
+  begin
+    Clear;
+    Add(PGDriverLink.VendorHome);
+    SaveToFile(ExtractFilePath(Application.ExeName) + 'log1.txt');
+    Free;
+  end;
+end;
+
+function TServerModule.RetornaIdPessoa(pessoa: string): integer;
+var
+  objPessoa : TPessoa;
+begin
+  Result := -1;
+
+  try
+    try
+      objPessoa := TJson.JsonToObject<TPessoa>(pessoa);
+
+      cdsBuscaIdPessoa.Close;
+      cdsBuscaIdPessoa.ParamByName('dsdocumento').AsString := objPessoa.numeroDocumento;
+      cdsBuscaIdPessoa.ParamByName('flnatureza').AsInteger := objPessoa.natureza;
+      cdsBuscaIdPessoa.ParamByName('nmprimeiro').AsString := objPessoa.nome;
+      cdsBuscaIdPessoa.ParamByName('nmsegundo').AsString := objPessoa.sobrenome;
+      cdsBuscaIdPessoa.Open;
+
+      Result := IfThen(cdsBuscaIdPessoa.FieldByName('idpessoa').AsInteger <= 0, -1, cdsBuscaIdPessoa.FieldByName('idpessoa').AsInteger);
+    except
+      on E:Exception do
+      begin
+        Result := -1;
+      end;
+    end;
+  finally
+    FreeAndNil(objPessoa);
+  end;
+end;
+
+end.
+
